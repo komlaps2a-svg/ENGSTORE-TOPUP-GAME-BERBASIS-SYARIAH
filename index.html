@@ -1,43 +1,509 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENGSTORE | Mobile Legends Syariah</title>
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #047857;
+            --secondary: #1e293b;
+            --bg: #f8fafc;
+            --white: #ffffff;
+            --text: #334155;
+            --border: #e2e8f0;
+            --red: #ef4444;
+        }
 
-on:
-  # Runs on pushes targeting the default branch
-  push:
-    branches: ["main"]
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 100px; }
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+        /* NAVBAR */
+        .navbar { background: var(--white); padding: 15px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; }
+        .brand-logo { font-size: 1.4rem; font-weight: 900; color: var(--secondary); display: flex; align-items: center; gap: 8px; }
+        .brand-logo span { color: var(--primary); }
+        .syariah-badge { font-size: 0.65rem; background: #dcfce7; color: var(--primary-dark); padding: 3px 8px; border-radius: 4px; font-weight: 700; border: 1px solid #86efac; text-transform: uppercase; }
+        .nav-icons { display: flex; gap: 15px; align-items: center; }
+        .icon-btn { font-size: 1.5rem; position: relative; cursor: pointer; color: var(--secondary); }
+        .badge-count { position: absolute; top: -5px; right: -8px; background: var(--red); color: white; font-size: 0.7rem; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; opacity: 0; transition: 0.3s; }
+        .badge-count.show { opacity: 1; transform: scale(1.1); }
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+        .main-container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+        
+        /* --- NEW: GAME HEADLINE BANNER --- */
+        .game-banner {
+            display: flex; align-items: center; gap: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px;
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+            position: relative; overflow: hidden;
+        }
+        .game-banner::after {
+            content: ''; position: absolute; right: -20px; top: -20px; width: 100px; height: 100px;
+            background: rgba(255,255,255,0.1); border-radius: 50%;
+        }
+        .game-icon-box {
+            width: 65px; height: 65px; background: white; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; color: var(--primary-dark); font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-shrink: 0; text-align: center; line-height: 1.2;
+        }
+        .game-title h1 { font-size: 1.3rem; font-weight: 800; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .game-title p { font-size: 0.85rem; opacity: 0.9; font-weight: 500; display: flex; align-items: center; gap: 6px; }
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+        /* CARDS */
+        .card { background: var(--white); border-radius: 16px; padding: 20px; margin-bottom: 16px; border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .card-header { font-weight: 800; font-size: 1.1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; color: var(--secondary); border-left: 5px solid var(--primary); padding-left: 12px; }
 
-jobs:
-  # Single deploy job since we're just deploying
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: '.'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        /* INPUTS */
+        .form-grid { display: grid; grid-template-columns: 2.5fr 1.5fr; gap: 12px; }
+        .input-field { width: 100%; padding: 16px; border: 1px solid var(--border); border-radius: 10px; background: #f8fafc; font-size: 1rem; outline: none; font-weight: 600; transition: 0.2s; }
+        .input-field:focus { border-color: var(--primary); background: #fff; }
+        .input-hint { font-size: 0.75rem; color: #94a3b8; margin-top: 5px; display: flex; gap: 5px; align-items: center; }
+
+        /* ITEM GRID */
+        .tabs { display: flex; gap: 10px; margin-bottom: 15px; background: #e2e8f0; padding: 4px; border-radius: 12px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; font-weight: 700; color: #64748b; cursor: pointer; border-radius: 10px; }
+        .tab-btn.active { background: var(--white); color: var(--primary-dark); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        .item-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        @media (min-width: 600px) { .item-grid { grid-template-columns: repeat(3, 1fr); } }
+
+        .product-item { border: 1px solid var(--border); border-radius: 12px; padding: 12px; cursor: pointer; position: relative; transition: 0.2s; display: flex; align-items: center; gap: 12px; background: white; height: 80px; }
+        .product-item.active { border: 2px solid var(--primary); background: #f0fdf4; }
+        .product-item.active::after { content: '✓'; position: absolute; top: 0; right: 0; background: var(--primary); color: white; padding: 2px 8px; border-bottom-left-radius: 10px; font-weight: bold; font-size: 0.8rem; }
+        
+        .prod-icon { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 8px; flex-shrink: 0; }
+        .icon-dm { background: linear-gradient(135deg, #eff6ff, #dbeafe); }
+        .icon-sub { background: linear-gradient(135deg, #fef9c3, #fef08a); }
+        .prod-name { font-weight: 800; font-size: 0.9rem; color: var(--secondary); line-height: 1.2; }
+        .prod-price { font-size: 0.85rem; color: #64748b; margin-top: 4px; font-weight: 500; }
+
+        /* PAYMENT GRID */
+        .pay-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        .pay-item.active { border-color: var(--primary); background: #f0fdf4; box-shadow: inset 0 0 0 1px var(--primary); }
+        .pay-logo { font-weight: 800; color: var(--secondary); font-size: 1rem; display: flex; align-items: center; gap: 10px; }
+
+        /* BOTTOM BAR */
+        .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); padding: 15px 20px; border-top: 1px solid var(--border); display: flex; gap: 12px; z-index: 100; box-shadow: 0 -4px 20px rgba(0,0,0,0.05); }
+        .btn-act { flex: 1; padding: 14px; border-radius: 50px; font-weight: 800; cursor: pointer; font-size: 0.95rem; border: none; transition: 0.2s; }
+        .btn-cart { background: #ecfdf5; color: var(--primary-dark); border: 2px solid var(--primary); }
+        .btn-buy { background: var(--secondary); color: white; flex: 1.5; box-shadow: 0 4px 15px rgba(30, 41, 59, 0.3); }
+
+        /* MODALS */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; justify-content: center; align-items: flex-end; backdrop-filter: blur(5px); }
+        .modal-box { background: var(--white); width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; padding: 25px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from {transform: translateY(100%)} to {transform: translateY(0)} }
+        
+        /* CART & HISTORY */
+        .cart-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .cart-check { width: 22px; height: 22px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; }
+        .cart-details { flex: 1; }
+        .cart-del { color: var(--red); font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+        .history-item { padding: 15px 0; border-bottom: 1px solid #eee; }
+        .hist-row { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
+        .st-success { background: #dcfce7; color: var(--primary-dark); font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+
+        /* PAYMENT SCREEN */
+        .pay-screen { position: fixed; inset: 0; background: #f1f5f9; z-index: 3000; display: none; flex-direction: column; }
+        .va-card { background: white; margin: 20px; padding: 25px; border-radius: 16px; text-align: center; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+        .va-num { font-size: 1.8rem; font-weight: 900; color: var(--secondary); letter-spacing: 3px; margin: 15px 0; font-family: monospace; }
+        
+        .toggle-box { background: #fff; padding: 15px; margin: 0 20px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border); }
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* RECEIPT */
+        .receipt-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 4000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
+        .receipt-card { background: #fff; width: 90%; max-width: 400px; padding: 0; border-radius: 20px; overflow: hidden; animation: pop 0.4s ease-out; position: relative; }
+        .receipt-header { background: var(--primary); padding: 30px 20px; text-align: center; color: white; }
+        .check-circle { width: 60px; height: 60px; background: white; border-radius: 50%; color: var(--primary); font-size: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .receipt-body { padding: 25px; }
+        .rc-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; color: #64748b; }
+        .rc-val { font-weight: 700; color: var(--secondary); text-align: right; }
+        .rc-total { border-top: 2px dashed #eee; margin-top: 15px; padding-top: 15px; display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 800; color: var(--primary-dark); }
+        
+        .svg-icon { width: 24px; height: 24px; }
+        @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="brand-logo">ENG<span>STORE</span> <div class="syariah-badge">Official</div></div>
+        <div class="nav-icons">
+            <div class="icon-btn" onclick="openHistory()">📜</div>
+            <div class="icon-btn" onclick="openCart()">
+                🛒 <div class="badge-count" id="cartCount">0</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        
+        <div class="game-banner">
+            <div class="game-icon-box">
+                <div>ML<br>BB</div>
+            </div>
+            <div class="game-title">
+                <h1>Mobile Legends</h1>
+                <p>🛡️ Top Up Resmi & Berbasis Syariah</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">1. Masukkan User ID</div>
+            <div class="form-grid">
+                <input type="tel" id="userId" class="input-field" placeholder="User ID">
+                <input type="tel" id="zoneId" class="input-field" placeholder="Zone ID">
+            </div>
+            <div class="input-hint">
+                <span>💡 Contoh: 12345678 (2025)</span>
+                <span style="margin-left:auto; color:var(--primary);">Verifikasi Otomatis</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">2. Pilih Nominal Top Up</div>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('dm', this)">💎 Diamond</button>
+                <button class="tab-btn" onclick="switchTab('sub', this)">👑 Membership</button>
+            </div>
+            <div class="item-grid" id="productGrid"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">3. Pembayaran Syariah</div>
+            <div id="paymentGrid"></div>
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <button class="btn-act btn-cart" onclick="addToCart()">+ KERANJANG</button>
+        <button class="btn-act btn-buy" onclick="preCheckout('single')">BAYAR LANGSUNG</button>
+    </div>
+
+    <div class="modal-overlay" id="cartModal">
+        <div class="modal-box">
+            <h3 style="margin-bottom:20px; text-align:center;">Keranjang Belanja</h3>
+            <div id="cartListContent"></div>
+            <div style="margin-top:20px; padding-top:15px; border-top:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-size:0.8rem; color:#999;">Total Dipilih:</div>
+                    <strong style="color:var(--primary); font-size:1.2rem;" id="cartTotalDisplay">Rp 0</strong>
+                </div>
+                <button class="btn-act btn-buy" style="padding:10px 30px; font-size:0.9rem;" onclick="preCheckout('cart')">CHECKOUT</button>
+            </div>
+            <div style="text-align:center; padding:15px; color:#999; cursor:pointer;" onclick="closeModal('cartModal')">Tutup</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="histModal">
+        <div class="modal-box">
+            <h3 style="margin-bottom:20px; text-align:center;">Riwayat Transaksi</h3>
+            <div id="histContent"></div>
+            <button class="btn-act" style="width:100%; margin-top:20px; background:#f1f5f9; color:#64748b;" onclick="closeModal('histModal')">Tutup</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="akadModal">
+        <div class="modal-box">
+            <h3 style="text-align:center; padding-bottom:15px; border-bottom:1px dashed #ccc; margin-bottom:15px;">📋 AKAD WAKALAH</h3>
+            <div id="billDetails"></div>
+            <div style="display:flex; justify-content:space-between; margin-top:15px; font-size:1.2rem; font-weight:800; color:var(--primary-dark);">
+                <span>TOTAL</span><span id="billGrandTotal">Rp 0</span>
+            </div>
+            <div style="background:#fffbeb; padding:15px; border-radius:8px; margin:20px 0; font-size:0.85rem; border:1px solid #fcd34d;">
+                <strong>Akad:</strong> "Saya mewakilkan pembelian kepada ENGSTORE dan setuju membayar harga pokok serta Ujrah (jasa) layanan ini secara tunai."
+            </div>
+            <label style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+                <input type="checkbox" id="akadCheck" onchange="togglePayBtn()" style="width:20px; height:20px; accent-color:var(--primary);">
+                <span style="font-size:0.9rem;">Saya setuju dengan akad syariah ini.</span>
+            </label>
+            <button class="btn-act btn-buy" id="btnFinalPay" style="width:100%; opacity:0.5; pointer-events:none;" onclick="goToPayment()">LANJUT BAYAR</button>
+            <div style="text-align:center; padding:15px; color:#999; cursor:pointer;" onclick="closeModal('akadModal')">Batal</div>
+        </div>
+    </div>
+
+    <div class="pay-screen" id="payScreen">
+        <div style="background:white; padding:20px; text-align:center; border-bottom:1px solid #eee;">
+            <h3>Menunggu Pembayaran</h3>
+            <span style="background:#fee2e2; color:#ef4444; padding:2px 10px; border-radius:10px; font-size:0.8rem; font-weight:bold;">Sisa Waktu: 23:59:00</span>
+        </div>
+        <div class="va-card">
+            <div style="color:#64748b; font-size:0.9rem;">Total Tagihan</div>
+            <div style="font-size:2rem; font-weight:900; color:var(--primary);" id="payAmount">Rp 0</div>
+            <div id="manualPaySection">
+                <div style="margin:20px 0; border-top:1px dashed #e2e8f0;"></div>
+                <div style="color:#64748b; font-size:0.9rem;">Nomor Virtual Account</div>
+                <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:5px;">
+                    <strong id="payBankName">BANK</strong>
+                </div>
+                <div class="va-num" id="vaCode">8800 1234</div>
+                <button class="btn-act" style="background:var(--bg); border:1px solid #ccc; padding:8px 20px; font-size:0.8rem;" onclick="alert('Kode disalin!')">SALIN KODE</button>
+            </div>
+        </div>
+        <div class="toggle-box">
+            <div style="font-size:0.9rem; font-weight:700; color:var(--secondary);">
+                <span>🔗</span> Sambungkan Akun (Auto-Debit)
+                <div style="font-size:0.75rem; color:#94a3b8; font-weight:400;">Bayar instan tanpa salin kode</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="autoDebitToggle" onchange="toggleAutoDebitUI()">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div style="padding:20px; margin-top:auto; background:white; border-top:1px solid #eee;">
+            <button class="btn-act btn-buy" id="btnConfirmTrans" style="width:100%; background:#94a3b8;" onclick="alert('Salin kode dulu!')">CEK STATUS PEMBAYARAN</button>
+        </div>
+    </div>
+
+    <div class="receipt-overlay" id="receiptModal">
+        <div class="receipt-card">
+            <div class="receipt-header">
+                <div class="check-circle">✓</div>
+                <h2 style="margin:0;">Pembayaran Berhasil</h2>
+                <div style="opacity:0.8; font-size:0.9rem; margin-top:5px;">Terima kasih atas kepercayaan Anda</div>
+            </div>
+            <div class="receipt-body">
+                <div class="rc-row"><span>Waktu</span><span class="rc-val" id="rcDate">25 Des, 10:30</span></div>
+                <div class="rc-row"><span>Ref</span><span class="rc-val" id="rcRef">TRX-19283</span></div>
+                <div class="rc-row"><span>Metode</span><span class="rc-val" id="rcMethod">BSI VA</span></div>
+                <div style="margin:15px 0; border-bottom:1px solid #eee;"></div>
+                <div class="rc-row"><span>Status</span><span class="rc-val" style="color:var(--primary); background:#dcfce7; padding:2px 8px; border-radius:4px;">LUNAS</span></div>
+                <div class="rc-total"><span>Total</span><span id="rcAmount">Rp 0</span></div>
+                <button class="btn-act btn-buy" style="width:100%; margin-top:25px;" onclick="location.reload()">TUTUP</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DATASET LENGKAP
+        const DIAMONDS = [
+            { id: 'dm1', val: '5', price: 1600, fee: 100 },
+            { id: 'dm2', val: '12', price: 3800, fee: 200 },
+            { id: 'dm3', val: '28', price: 8400, fee: 400 },
+            { id: 'dm4', val: '59', price: 17000, fee: 800 },
+            { id: 'dm5', val: '85', price: 24000, fee: 1000 },
+            { id: 'dm6', val: '170', price: 48000, fee: 2000 },
+            { id: 'dm7', val: '240', price: 68000, fee: 2500 },
+            { id: 'dm8', val: '296', price: 84000, fee: 3000 },
+            { id: 'dm9', val: '408', price: 115000, fee: 4000 },
+            { id: 'dm10', val: '568', price: 160000, fee: 5000 },
+            { id: 'dm11', val: '875', price: 245000, fee: 7000 },
+            { id: 'dm12', val: '2010', price: 550000, fee: 15000 },
+            { id: 'dm13', val: '4830', price: 1350000, fee: 25000 },
+            { id: 'dm14', val: '6050', price: 1650000, fee: 30000 },
+        ];
+        const SUBS = [
+            { id: 'sub1', name: 'Weekly Pass', price: 29000, fee: 1000 },
+            { id: 'sub2', name: 'Twilight Pass', price: 150000, fee: 5000 },
+            { id: 'sub3', name: 'Starlight Member', price: 165000, fee: 5000 },
+            { id: 'sub4', name: 'Starlight Premium', price: 450000, fee: 10000 },
+        ];
+        const PAYMENTS = [
+            { id: 'bsi', name: 'BSI Virtual Account', img: '🏦' },
+            { id: 'bmi', name: 'Muamalat VA', img: '🕌' },
+            { id: 'gopay', name: 'GoPay Syariah', img: '🔵' },
+            { id: 'dana', name: 'DANA Balance', img: '🔷' },
+            { id: 'qris', name: 'QRIS (All Payment)', img: '⬛' },
+        ];
+        
+        const ICON_DM = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M6 3L2 9L12 21L22 9L18 3H6Z" fill="#eff6ff"/></svg>`;
+        const ICON_SUB = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#fef9c3"/></svg>`;
+
+        let cart = []; let selectedItem = null; let selectedPay = null;
+
+        window.onload = () => { renderItems('dm'); renderPayments(); updateCartBadge(); };
+
+        function switchTab(type, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active'); renderItems(type);
+        }
+
+        function renderItems(type) {
+            const grid = document.getElementById('productGrid');
+            const list = type === 'dm' ? DIAMONDS : SUBS;
+            grid.innerHTML = list.map(item => {
+                const total = item.price + item.fee;
+                const name = item.val ? `${item.val} Diamond` : item.name;
+                const icon = type === 'dm' ? ICON_DM : ICON_SUB;
+                const bg = type === 'dm' ? 'icon-dm' : 'icon-sub';
+                return `
+                <div class="product-item" onclick="selectItem('${item.id}', '${type}', this)">
+                    <div class="prod-icon ${bg}">${icon}</div>
+                    <div class="prod-info"><div class="prod-name">${name}</div><div class="prod-price">Rp ${total.toLocaleString()}</div></div>
+                </div>`;
+            }).join('');
+            selectedItem = null;
+        }
+
+        function renderPayments() {
+            document.getElementById('paymentGrid').innerHTML = PAYMENTS.map(p => `
+                <div class="pay-item" onclick="selectPay('${p.id}', this)">
+                    <div class="pay-logo"><span>${p.img}</span> ${p.name}</div>
+                    <div style="font-size:0.8rem; color:#999;">Otomatis</div>
+                </div>`).join('');
+        }
+
+        function selectItem(id, type, el) {
+            const list = type === 'dm' ? DIAMONDS : SUBS;
+            selectedItem = list.find(i => i.id === id);
+            selectedItem.displayName = type==='dm' ? `${selectedItem.val} Diamond` : selectedItem.name;
+            document.querySelectorAll('.product-item').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+        }
+        function selectPay(id, el) {
+            selectedPay = PAYMENTS.find(p => p.id === id);
+            document.querySelectorAll('.pay-item').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function addToCart() {
+            if(!selectedItem) return alert("Pilih item dulu!");
+            cart.push({...selectedItem, uid: Date.now()});
+            updateCartBadge(); alert("✅ Item masuk keranjang!");
+        }
+        function updateCartBadge() {
+            const el = document.getElementById('cartCount'); el.innerText = cart.length; el.classList.toggle('show', cart.length > 0);
+        }
+
+        function openCart() {
+            const content = document.getElementById('cartListContent');
+            if(cart.length === 0) {
+                content.innerHTML = '<p style="text-align:center; color:#ccc;">Kosong</p>';
+                document.getElementById('cartTotalDisplay').innerText = "Rp 0";
+            } else {
+                content.innerHTML = cart.map(i => `
+                    <div class="cart-row">
+                        <input type="checkbox" class="cart-check" value="${i.uid}" checked onchange="calcCartTotal()">
+                        <div class="cart-details">
+                            <div style="font-weight:700; font-size:0.9rem;">${i.displayName}</div>
+                            <div style="font-size:0.8rem; color:#64748b;">Rp ${(i.price+i.fee).toLocaleString()}</div>
+                        </div>
+                        <div class="cart-del" onclick="removeFromCart(${i.uid})">HAPUS</div>
+                    </div>
+                `).join('');
+                calcCartTotal();
+            }
+            document.getElementById('cartModal').style.display='flex';
+        }
+
+        function calcCartTotal() {
+            const checks = document.querySelectorAll('.cart-check:checked');
+            let total = 0;
+            checks.forEach(c => {
+                const item = cart.find(i => i.uid == c.value);
+                if(item) total += (item.price + item.fee);
+            });
+            document.getElementById('cartTotalDisplay').innerText = `Rp ${total.toLocaleString()}`;
+        }
+
+        function removeFromCart(uid) {
+            cart = cart.filter(i => i.uid !== uid);
+            updateCartBadge(); openCart();
+        }
+
+        function preCheckout(type) {
+            if(!document.getElementById('userId').value) return alert("Masukkan User ID!");
+            if(!selectedPay) return alert("Pilih Pembayaran!");
+            
+            let items = [];
+            if(type === 'single') {
+                if(!selectedItem) return alert("Pilih Item!");
+                items.push(selectedItem);
+            } else {
+                const checks = document.querySelectorAll('.cart-check:checked');
+                if(checks.length === 0) return alert("Pilih minimal 1 item!");
+                checks.forEach(c => {
+                    const it = cart.find(i => i.uid == c.value);
+                    if(it) items.push(it);
+                });
+            }
+            showAkad(items);
+        }
+
+        function showAkad(items) {
+            let tPrice=0, tFee=0;
+            const html = items.map(i => {
+                tPrice+=i.price; tFee+=i.fee;
+                return `<div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.9rem;"><span>${i.displayName}</span><span>Rp ${(i.price+i.fee).toLocaleString()}</span></div>`;
+            }).join('');
+            
+            document.getElementById('billDetails').innerHTML = html + 
+                `<div style="border-top:1px dashed #ccc; margin:10px 0;"></div>
+                 <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:#64748b;"><span>Fee Layanan (Ujrah)</span><span>Rp ${tFee.toLocaleString()}</span></div>`;
+            
+            document.getElementById('billGrandTotal').innerText = `Rp ${(tPrice+tFee).toLocaleString()}`;
+            document.getElementById('akadCheck').checked = false; togglePayBtn();
+            
+            closeModal('cartModal'); document.getElementById('akadModal').style.display = 'flex';
+        }
+
+        function togglePayBtn() {
+            const chk = document.getElementById('akadCheck');
+            const btn = document.getElementById('btnFinalPay');
+            btn.style.opacity = chk.checked ? '1' : '0.5'; btn.style.pointerEvents = chk.checked ? 'auto' : 'none';
+        }
+
+        function goToPayment() {
+            closeModal('akadModal');
+            const screen = document.getElementById('payScreen');
+            document.getElementById('payAmount').innerText = document.getElementById('billGrandTotal').innerText;
+            document.getElementById('payBankName').innerText = selectedPay.name;
+            document.getElementById('vaCode').innerText = "8809" + Math.floor(Math.random()*10000000);
+            document.getElementById('autoDebitToggle').checked = false; toggleAutoDebitUI();
+            screen.style.display = 'flex';
+        }
+
+        function toggleAutoDebitUI() {
+            const isOn = document.getElementById('autoDebitToggle').checked;
+            const btn = document.getElementById('btnConfirmTrans');
+            const manual = document.getElementById('manualPaySection');
+            if(isOn) {
+                manual.style.opacity = '0.3'; btn.style.background = 'var(--primary)';
+                btn.innerHTML = "⚡ BAYAR SEKARANG (Auto-Debit)"; btn.onclick = processSuccess;
+            } else {
+                manual.style.opacity = '1'; btn.style.background = '#94a3b8';
+                btn.innerHTML = "CEK STATUS PEMBAYARAN"; btn.onclick = () => alert("Silakan transfer dulu!");
+            }
+        }
+
+        function processSuccess() {
+            const btn = document.getElementById('btnConfirmTrans');
+            btn.innerHTML = "⏳ MEMPROSES...";
+            setTimeout(() => {
+                document.getElementById('rcDate').innerText = new Date().toLocaleString();
+                document.getElementById('rcRef').innerText = "TRX-" + Math.floor(Date.now());
+                document.getElementById('rcMethod').innerText = selectedPay.name;
+                document.getElementById('rcAmount').innerText = document.getElementById('payAmount').innerText;
+
+                const hist = JSON.parse(localStorage.getItem('eng_history') || '[]');
+                hist.unshift({ date: new Date().toLocaleString(), total: document.getElementById('payAmount').innerText, status: 'LUNAS' });
+                localStorage.setItem('eng_history', JSON.stringify(hist));
+
+                document.getElementById('payScreen').style.display = 'none';
+                document.getElementById('receiptModal').style.display = 'flex';
+                cart = []; updateCartBadge();
+            }, 1500);
+        }
+
+        function openHistory() {
+            const hist = JSON.parse(localStorage.getItem('eng_history') || '[]');
+            const list = document.getElementById('histContent');
+            if(hist.length === 0) list.innerHTML = '<p style="text-align:center; color:#ccc;">Belum ada transaksi</p>';
+            else list.innerHTML = hist.map(h => `
+                <div class="history-item"><div class="hist-date">${h.date}</div><div class="hist-row"><strong>${h.total}</strong><span class="st-success">${h.status}</span></div></div>`
+            ).join('');
+            document.getElementById('histModal').style.display='flex';
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display='none'; }
+    </script>
+</body>
+</html>
